@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cover Letter Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+</head>
+<body class="bg-grat-100 font-sans antialiased">
+    <!-- Navbar -->
+    <nav class="bg-blue-600 p-4 text-white flex justify-between">
+        <div>
+            <a href="{% url 'index' %}">
+                <h1 class="text-3xl font-bold"> AI Cover Letter Generator</h1>
+            </a>
+        </div>
+        <div>
+            <a href="#" class="text-black hover:underline"> Welcome {{user.username}}</a>
+            <a href="/cover-list" class="text-white hover:underline mx-4"> Saved Cover Letters</a>
+            <a href="logout" class="text-white hover:underline"> Logout</a>
+        </div>
+    </nav>
+
+    
+
+    
+
+    <!-- Main content -->
+    <div>
+        <div>
+            <section>
+                <h2 class="text-xl mb-4 font-semibold"> Cover Letter Details</h2>
+                <div class="border border-gray-300 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold"> {{cover_letter_detail.job_title}}</h3>
+                    <p id="generatedContent">{{cover_letter_detail.generated_content}}</p>
+                    <hr class="my-4 border-gray-300">
+                    {% if cover_letter.user_profil %}
+                        <h3 class="text-lg font-semibold"> User Profil</h3>
+                        <p> {{ cover_letter.user_profil }} </p>
+                    {% endif%}
+                    <h4 class="text-lg font-semibold"> Job Title</h4>
+                    <p class="text-gray-700"> {{cover_letter_detail.job_title}}</p>
+                    <h4 class="text-lg font"> Job Description</h4>
+                    <p id="jobdescription" class="text-blue-700">{{cover_letter_detail.job_description}}</p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'cover-details' cover_letter_detail.pk %}">
+        {% csrf_token %}
+        <input type="submit" name="download_pdf" value="Download PDF" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generatedContent = document.getElementById('generatedContent');
+            generatedContent.innerHTML = marked.parse(generatedContent.textContent);
+            const jobdescription = document.getElementById('jobdescription');
+            jobdescription.innerHTML = marked.parse(jobdescription.textContent);
+        });
+    </script>
+</body>
+</html>

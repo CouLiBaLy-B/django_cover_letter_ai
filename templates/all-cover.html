@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All cover Posts</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+    <!-- Navbar -->
+    <nav class="bg-blue-600 p-4 text-white flex justify-between">
+        <div>
+            <a href="{% url 'index' %}">
+                <h1 class="text-3xl font-bold"> AI cover Generator</h1>
+            </a>
+        </div>
+        <div>
+            <a href="#" class="text-black hover:underline"> Welcome {{user.username}}</a>
+            <a href="logout" class="text-white hover:underline"> Logout</a>
+        </div>
+    </nav>
+
+    <br>
+    <br>
+    <!-- Main Content Container-->
+    <div class="container mx-auto mt-10 sm:px-0">
+        <div>
+
+            <!-- cover post section-->
+            <section>
+                <h2 class="text-xl mb-4 font-semibold">
+                    All cover posts
+                </h2>
+                <div class="space-y-4">
+                    {% for letter in cover_letters  reversed %}
+                    <a href='cover-details/{{letter.id}}'>
+                        <div class="border border-gray-300 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold"> {{letter.job_title}}</h3>
+                            <p>{{letter.generated_content |truncatechars:80}}</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                    <!--Repeat-->
+                </div>
+            </section>
+        </div>
+    </div>
+    
+</body>
+</html>

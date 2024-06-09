@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeAI</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to { 
+                transform: rotate(360deg);
+            }
+        }
+         
+        
+         @-webkit-keyframes rotate {
+            from {
+                -webkit-transform: rotate(0deg);
+            }
+            to { 
+                -webkit-transform: rotate(360deg);
+            }
+        }
+        
+        .load {
+            width: 100px;
+            height: 100px;
+            margin: 110px auto 0;
+            border:solid 10px #8822aa;
+            border-radius: 50%;
+            border-right-color: transparent;
+            border-bottom-color: transparent;
+             -webkit-transition: all 0.5s ease-in;
+            -webkit-animation-name:             rotate; 
+            -webkit-animation-duration:         1.0s; 
+            -webkit-animation-iteration-count:  infinite;
+            -webkit-animation-timing-function: linear;
+                
+                 transition: all 0.5s ease-in;
+            animation-name:             rotate; 
+            animation-duration:         1.0s; 
+            animation-iteration-count:  infinite;
+            animation-timing-function: linear; 
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+</head>
+<body class="flex flex-col min-h-scrren bg-gray-100 font-sans antialiased">
+    <!-- Navbar -->
+    <nav class="bg-blue-600 p-4 text-white flex justify-between">
+        <div>
+            <h1 class="text-3xl font-bold"> ResumeAI</h1>
+        </div>
+        <div>
+            <a href="#" class="text-black hover:underline"> Welcome {{user.username}}</a>
+            <a href="/cover-list" class="hover:underline font-semibold mx-4" style="color:rgba(255,0,0,0.5);"> Saved Blog Posts</a>
+            <a href="logout" class="text-white hover:underline font-semibold"> Logout</a>
+        </div>
+    </nav>
+
+
+
+    <div class="flex-grow container mx-auto mt-10 px-4 sm:px-0">
+        <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md transition-transform transform hover:scale-105 flex-col">
+            <!-- Introduction section -->
+            <div class="text-center">
+                <h2 class="text-2xl font-semibold mb-4"> Welcome To The ResumeAI </h2>
+                <p> High quality generator of cover letter from job description and user profil </p>
+            </div>
+
+            <div>
+                <h2 class="text-xl mb-4 font-semibold">Profile</h2>
+                <div class="flex space-x-4">
+                    <input id="profil_pdf" type="file" accept="application/pdf" class="flex-grow p-2 border-blue-400 rounded-l-md">
+                </div>
+            </div>
+            <!-- Job section -->
+            <div>
+                <h2 class="text-xl mb-4 font-semibold">L'offre d'emploie</h2>
+                <div class="flex space-x-4">
+                    <textarea id="jobdescription" rows="4" tpye="text" placeholder="Paste Job Description..." class="flex-grow p-2 border-blue-400 rounded-l-md"></textarea>
+                </div>
+            </div>
+            <div class="text-center px-10">
+                <button id="generateCoverButton" class="bg-blue-600 text-white text-center rounded-r-md hover:bg-blue-700 transition-colors"> Generate </button>
+            </div>
+            <!-- Section for loading circle-->
+            <div style="display: none;" id="loading-circle" class="load"></div>
+
+           <!-- Generated blog display section-->
+            <section class="mt-10">
+                <h2 class="text-xl mb-4 font-semibold"> Réponse</h2>
+                <div id="coverContent" class="mt-2 text-gray-700 space-y-4">
+                    <!-- Generated content will be displayed here -->
+                </div>
+            </section>
+        </div>
+    </div>
+    <footer class="text-center p-4 text-black mt-6">
+        Powered by <a href="https://www.linkedin.com/in/bourahima-coulibaly-6bb335218/">Ibrahim</a>
+    </footer>
+    <script>
+        document.getElementById('generateCoverButton').addEventListener('click', async () => {
+            const jobdescription = document.getElementById('jobdescription').value;
+            const profilPdf = document.getElementById('profil_pdf').files[0];
+            const coverContent = document.getElementById('coverContent');
+
+            if(jobdescription && profilPdf) {
+                document.getElementById('loading-circle').style.display = 'block';
+                coverContent.innerHTML = ''; // Clear previous content
+
+                const formData = new FormData();
+                formData.append('Description', jobdescription);
+                formData.append('profil_pdf', profilPdf);
+
+                try {
+                    const response = await fetch('/generate-cover', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if(response.ok) {
+                        coverContent.innerHTML = marked.parse(data.content);
+                    } else {
+                        alert(data.error);
+                    }
+
+                } catch (error) {
+                    console.error('Error occurred:', error);
+                    alert('Something went wrong. Please try again later.');
+                }
+                document.getElementById('loading-circle').style.display = 'none';
+            } else {
+                alert('Please enter a Job description and upload a Profile PDF.');
+            }
+        });
+
+
+        // Add event listeners for the new buttons
+        document.getElementById('previewButton').addEventListener('click', () => {
+            // Add your preview functionality here
+            // For example, you can show a modal with the generated cover letter
+            const coverContent = document.getElementById('coverContent');
+            const modal = document.createElement('div');
+            modal.classList.add('fixed', 'inset-0', 'flex', 'items-center', 'justify-center', 'bg-black', 'bg-opacity-50', 'z-50');
+            modal.innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl mb-4 font-semibold"> Preview Cover Letter</h2>
+                    <div id="previewContent" class="mt-2 text-gray-700 space-y-4">
+                        ${coverContent.innerHTML}
+                    </div>
+                    <button id="closePreviewButton" class="bg-blue-600 text-white px-4 rounded-md hover:bg-blue-700 transition-colors"> Close </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            document.getElementById('closePreviewButton').addEventListener('click', () => {
+                modal.remove();
+            });
+        });
+    </script>
+</body>
+</html>
